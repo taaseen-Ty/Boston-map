@@ -116,7 +116,7 @@ def thumbnail(path: Path, size=560) -> str | None:
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
-def summarise(places, names_override, photos_dir=None):
+def summarise(places, names_override, photos_dir=None, skip_photos=()):
     result = []
     for i, c in enumerate(places):
         m = c["members"]
@@ -140,7 +140,8 @@ def summarise(places, names_override, photos_dir=None):
             "last": times[-1] if times else None,
             "dates": sorted(days),
             "pics": [t for t in (thumbnail(photos_dir / p["ref"]) for p in m
-                                 if photos_dir and p["source"] == "photo") if t],
+                                 if photos_dir and p["source"] == "photo"
+                                 and Path(p["ref"]).stem not in skip_photos) if t],
         })
     result.sort(key=lambda r: r["first"] or "9999")
     return result
@@ -187,7 +188,7 @@ def main():
     ap.add_argument("--mode", choices=["family", "public"])
     ap.add_argument("--sample", action="store_true", help="use built-in demo data")
     ap.add_argument("--photos", action="store_true",
-                    help="embed photo thumbnails (family version only)")
+                    help="embed photo thumbnails (public builds skip config private_photos)")
     ap.add_argument("--out", help="default: web/data.json (family) or web/data.public.json (public)")
     args = ap.parse_args()
 
@@ -209,8 +210,10 @@ def main():
     print(f"  kept {len(points)} of {before} inside the Boston area since {start}")
 
     points = apply_privacy(points, cfg["privacy"], mode)
-    photos_dir = ROOT / "data" / "photos" if args.photos and mode == "family" and not args.sample else None
-    places = summarise(cluster(points, cfg["cluster_radius_m"]), cfg.get("place_names", {}), photos_dir)
+    photos_dir = ROOT / "data" / "photos" if args.photos and not args.sample else None
+    # Photos listed in config "private_photos" (file names without extension) never go in the public build
+    skip = set(cfg.get("private_photos", [])) if mode == "public" else set()
+    places = summarise(cluster(points, cfg["cluster_radius_m"]), cfg.get("place_names", {}), photos_dir, skip)
     if mode == "public":
         # Snap pins to a ~110 m grid (after clustering, so places don't split)
         for p in places:
