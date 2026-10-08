@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Boston, So Far</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ee; --panel: #fffdf9; --ink: #1d1b18; --muted: #6b655c; --line: #e6e0d4;
+    --accent: #c8102e; --accent-soft: #c8102e22; --chip: #efe9dd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151413; --panel: #1e1c1a; --ink: #f1ece4; --muted: #a39b8f; --line: #2f2c28;
+      --accent: #ff5a6e; --accent-soft: #ff5a6e30; --chip: #2a2723;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 15px/1.45 Inter, system-ui, sans-serif;
+         display: grid; grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr); overflow-x: hidden; }
+  header { padding: 20px 24px 8px; display: flex; flex-wrap: wrap; align-items: end; gap: 12px 32px; }
+  h1 { font: 600 30px/1.1 Fraunces, Georgia, serif; margin: 0; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin-top: 4px; }
+  .stats { display: flex; gap: 24px; margin-left: auto; }
+  .stat b { display: block; font: 600 24px/1 Fraunces, Georgia, serif; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .badge { font-size: 12px; background: var(--accent-soft); color: var(--accent); padding: 2px 8px;
+           border-radius: 99px; margin-left: 8px; vertical-align: middle; font-family: Inter, sans-serif; }
+
+  .bar { display: flex; align-items: center; gap: 12px; padding: 8px 24px 14px; }
+  .bar button { border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+                border-radius: 99px; padding: 6px 14px; font: 500 14px Inter, sans-serif; cursor: pointer; white-space: nowrap; }
+  .bar button:hover { border-color: var(--accent); }
+  .bar input[type=range] { flex: 1; accent-color: var(--accent); }
+  #dateLabel { min-width: 110px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; min-height: 0; border-top: 1px solid var(--line); }
+  #map { min-height: 300px; background: var(--bg); }
+  aside { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; }
+  .list-head { padding: 14px 18px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+               color: var(--muted); border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); }
+  .place { padding: 12px 18px; border-bottom: 1px solid var(--line); cursor: pointer; display: grid;
+           grid-template-columns: 28px 1fr auto; gap: 10px; align-items: baseline; }
+  .place:hover, .place.active { background: var(--accent-soft); }
+  .place.hidden { display: none; }
+  .num { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+  .pname { font-weight: 600; }
+  .parea { color: var(--muted); font-size: 13px; }
+  .pdays { font-size: 12px; background: var(--chip); border-radius: 99px; padding: 2px 8px; white-space: nowrap; }
+
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--ink); }
+  .leaflet-popup-content { font: 14px/1.4 Inter, sans-serif; margin: 12px 14px; }
+  .pop-title { font: 600 17px Fraunces, Georgia, serif; }
+  .pop-meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  @media (max-width: 760px) {
+    header { padding: 16px 16px 4px; }
+    h1 { font-size: 24px; }
+    .stats { margin-left: 0; gap: 18px; }
+    .bar { padding: 8px 16px 12px; }
+    main { grid-template-columns: minmax(0, 1fr); grid-template-rows: 55vh auto; }
+    aside { border-left: 0; border-top: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1 id="title">My Boston, So Far</h1>
+    <div class="sub" id="subtitle"></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b id="sPlaces">–</b><span>places</span></div>
+    <div class="stat"><b id="sAreas">–</b><span>neighborhoods</span></div>
+    <div class="stat"><b id="sDays">–</b><span>days out</span></div>
+  </div>
+</header>
+
+<div class="bar">
+  <button id="play" aria-label="Play timeline">▶ Replay</button>
+  <input id="slider" type="range" min="0" max="0" value="0" aria-label="Date">
+  <span id="dateLabel"></span>
+</div>
+
+<main>
+  <div id="map"></div>
+  <aside>
+    <div class="list-head">In the order I found them</div>
+    <div id="list"></div>
+  </aside>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const DAY = 864e5;
+// Parse 'YYYY-MM-DD…' as a local calendar day, so dates never shift by timezone.
+const day = s => { const [y, m, d] = String(s).slice(0, 10).split('-'); return new Date(+y, m - 1, +d).getTime(); };
+const fmt = d => new Date(typeof d === 'number' ? d : day(d)).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+const map = L.map('map', { zoomControl: true, attributionControl: true }).setView([42.355, -71.07], 13);
+L.tileLayer(`https://{s}.basemaps.cartocdn.com/${dark ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`, {
+  maxZoom: 19, subdomains: 'abcd',
+  attribution: '&copy; OpenStreetMap &copy; CARTO'
+}).addTo(map);
+
+// Locally you see the family build (data.json, never committed);
+// the published site only has the public build.
+fetch('data.json').then(r => r.ok ? r : fetch('data.public.json'))
+  .then(r => r.json()).then(render).catch(err => {
+  document.getElementById('subtitle').textContent = 'Could not load data.json. Run scripts/build.py first.';
+  console.error(err);
+});
+
+function render({ meta, places }) {
+  document.getElementById('title').innerHTML = meta.title +
+    (meta.sample ? '<span class="badge">sample data</span>' : '');
+  document.getElementById('subtitle').textContent = meta.subtitle +
+    (meta.from ? ` · ${fmt(meta.from)} – ${fmt(meta.to)}` : '');
+  document.getElementById('sAreas').textContent = meta.n_areas;
+  document.getElementById('sDays').textContent = meta.n_days;
+
+  const maxDays = Math.max(1, ...places.map(p => p.days));
+  const list = document.getElementById('list');
+  const items = places.map((p, i) => {
+    const r = 6 + 14 * Math.sqrt(p.days / maxDays);
+    const marker = L.circleMarker([p.lat, p.lon], {
+      radius: r, color: accent, weight: 1.5, fillColor: accent, fillOpacity: .35
+    }).bindPopup(
+      `<div class="pop-title">${p.name}</div>
+       <div class="pop-meta">${p.name !== p.area ? p.area + '<br>' : ''}First visit ${p.first ? fmt(p.first) : '?'} ·
+       ${p.days} day${p.days > 1 ? 's' : ''}${p.photos ? ` · ${p.photos} photo${p.photos > 1 ? 's' : ''}` : ''}</div>`);
+
+    const row = document.createElement('div');
+    row.className = 'place';
+    row.innerHTML = `<span class="num">${i + 1}</span>
+      <div><div class="pname">${p.name}</div><div class="parea">${[p.name !== p.area && p.area, p.first && fmt(p.first)].filter(Boolean).join(' · ')}</div></div>
+      <span class="pdays">${p.days}d</span>`;
+    row.onclick = () => { map.flyTo([p.lat, p.lon], 16, { duration: .6 }); marker.openPopup(); };
+    marker.on('click', () => {
+      document.querySelectorAll('.place.active').forEach(e => e.classList.remove('active'));
+      row.classList.add('active'); row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+    list.appendChild(row);
+    return { p, marker, row, t: p.first ? day(p.first) : 0 };
+  });
+
+  if (items.length) map.fitBounds(L.latLngBounds(items.map(i => [i.p.lat, i.p.lon])).pad(0.15));
+
+  // --- timeline slider: reveal places by first-visit date
+  const t0 = day(meta.from), t1 = day(meta.to);
+  const nDays = Math.max(0, Math.round((t1 - t0) / DAY));
+  const slider = document.getElementById('slider');
+  slider.max = nDays; slider.value = nDays;
+
+  function show(dayIdx) {
+    const cutoff = t0 + dayIdx * DAY;
+    let n = 0;
+    items.forEach(it => {
+      const on = it.t <= cutoff;
+      if (on) { n++; it.marker.addTo(map); } else it.marker.remove();
+      it.row.classList.toggle('hidden', !on);
+    });
+    document.getElementById('sPlaces').textContent = n;
+    document.getElementById('dateLabel').textContent = isNaN(cutoff) ? '' : fmt(cutoff);
+  }
+  slider.oninput = () => show(+slider.value);
+  show(nDays);
+
+  let timer = null;
+  const btn = document.getElementById('play');
+  btn.onclick = () => {
+    if (timer) { clearInterval(timer); timer = null; btn.textContent = '▶ Replay'; return; }
+    slider.value = 0; show(0); btn.textContent = '❚❚ Pause';
+    timer = setInterval(() => {
+      if (+slider.value >= nDays) { clearInterval(timer); timer = null; btn.textContent = '▶ Replay'; return; }
+      slider.value = +slider.value + 1; show(+slider.value);
+    }, Math.max(60, 6000 / Math.max(1, nDays)));
+  };
+}
+</script>
+</body>
+</html>
