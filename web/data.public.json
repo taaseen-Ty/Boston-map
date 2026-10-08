@@ -1,0 +1,131 @@
+{
+ "meta": {
+  "title": "My Boston, So Far",
+  "subtitle": "Postcards from my first months at BU",
+  "mode": "public",
+  "sample": false,
+  "generated": "2026-10-08T02:05:32",
+  "from": "2026-08-10",
+  "to": "2026-09-18",
+  "n_points": 10,
+  "n_places": 7,
+  "n_areas": 3,
+  "n_days": 7
+ },
+ "places": [
+  {
+   "id": "p000",
+   "name": "Around Roxbury Crossing",
+   "area": "Roxbury",
+   "lat": 42.328,
+   "lon": -71.091,
+   "days": 2,
+   "photos": 2,
+   "visits": 0,
+   "first": "2026-08-10T17:14:48",
+   "last": "2026-08-13T18:02:18",
+   "dates": [
+    "2026-08-10",
+    "2026-08-13"
+   ],
+   "pics": []
+  },
+  {
+   "id": "p001",
+   "name": "First look at the skyline",
+   "area": "Fenway",
+   "lat": 42.348,
+   "lon": -71.101,
+   "days": 1,
+   "photos": 1,
+   "visits": 0,
+   "first": "2026-08-12T11:20:16",
+   "last": "2026-08-12T11:20:16",
+   "dates": [
+    "2026-08-12"
+   ],
+   "pics": []
+  },
+  {
+   "id": "p002",
+   "name": "Questrom School of Business",
+   "area": "Fenway",
+   "lat": 42.349,
+   "lon": -71.1,
+   "days": 2,
+   "photos": 3,
+   "visits": 0,
+   "first": "2026-08-12T11:23:42",
+   "last": "2026-09-17T12:59:39",
+   "dates": [
+    "2026-08-12",
+    "2026-09-17"
+   ],
+   "pics": []
+  },
+  {
+   "id": "p003",
+   "name": "Bay State Road, from above",
+   "area": "Fenway",
+   "lat": 42.35,
+   "lon": -71.103,
+   "days": 1,
+   "photos": 1,
+   "visits": 0,
+   "first": "2026-08-13T15:08:35",
+   "last": "2026-08-13T15:08:35",
+   "dates": [
+    "2026-08-13"
+   ],
+   "pics": []
+  },
+  {
+   "id": "p004",
+   "name": "Computing & Data Sciences",
+   "area": "Fenway",
+   "lat": 42.35,
+   "lon": -71.11,
+   "days": 1,
+   "photos": 1,
+   "visits": 0,
+   "first": "2026-08-26T12:35:28",
+   "last": "2026-08-26T12:35:28",
+   "dates": [
+    "2026-08-26"
+   ],
+   "pics": []
+  },
+  {
+   "id": "p005",
+   "name": "Carson Beach",
+   "area": "South Boston",
+   "lat": 42.33,
+   "lon": -71.045,
+   "days": 1,
+   "photos": 1,
+   "visits": 0,
+   "first": "2026-09-06T19:08:50",
+   "last": "2026-09-06T19:08:50",
+   "dates": [
+    "2026-09-06"
+   ],
+   "pics": []
+  },
+  {
+   "id": "p006",
+   "name": "Kenmore Square",
+   "area": "Fenway",
+   "lat": 42.348,
+   "lon": -71.097,
+   "days": 1,
+   "photos": 1,
+   "visits": 0,
+   "first": "2026-09-18T15:19:17",
+   "last": "2026-09-18T15:19:17",
+   "dates": [
+    "2026-09-18"
+   ],
+   "pics": []
+  }
+ ]
+}

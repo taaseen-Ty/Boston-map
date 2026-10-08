@@ -1,0 +1,32 @@
+{
+  "title": "My Boston, So Far",
+  "subtitle": "Postcards from my first months at BU",
+  "start_date": "2026-08-01",
+  "bbox": {
+    "south": 42.15,
+    "west": -71.35,
+    "north": 42.55,
+    "east": -70.85
+  },
+  "cluster_radius_m": 120,
+  "privacy": {
+    "mode": "family",
+    "hide_zones": [
+      {
+        "label": "Home",
+        "lat": 0,
+        "lon": 0,
+        "radius_m": 300
+      }
+    ]
+  },
+  "place_names": {
+    "p000": "Around Roxbury Crossing",
+    "p001": "First look at the skyline",
+    "p002": "Questrom School of Business",
+    "p003": "Bay State Road, from above",
+    "p004": "Computing & Data Sciences",
+    "p005": "Carson Beach",
+    "p006": "Kenmore Square"
+  }
+}
